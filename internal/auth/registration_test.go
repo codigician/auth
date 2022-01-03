@@ -1,82 +1,70 @@
 package auth_test
 
 import (
-	"strings"
+	"errors"
 	"testing"
 
 	"github.com/codigician/auth/internal/auth"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRegister_FirstnameOutOfRange_ReturnErr(t *testing.T) {
-	_, err := auth.Register(auth.RegistrationInfo{
-		Firstname: strings.Repeat("Lacin", 25),
-	})
+type mockRepository struct{}
 
-	assert.NotNil(t, err)
-}
+func (m *mockRepository) Save(u *auth.User) error {
+	var userInfoValues = []string{u.ID, u.Firstname, u.Lastname, u.Email, u.HashedPassword}
+	targetVal := "force-error"
+	errMsg := "some error"
 
-func TestRegister_LastnameOutOfRange_ReturnErr(t *testing.T) {
-	_, err := auth.Register(auth.RegistrationInfo{
-		Lastname: strings.Repeat("Bilgin", 20),
-	})
-
-	assert.NotNil(t, err)
-}
-
-func TestRegister_EmailInvalid_ReturnErr(t *testing.T) {
-	_, err := auth.Register(auth.RegistrationInfo{
-		Email: "house",
-	})
-
-	assert.NotNil(t, err)
-}
-func TestRegister_PasswordInvalid_ReturnErr(t *testing.T) {
-	testCases := []struct {
-		desc        string
-		password    string
-		expectedErr string
-	}{
-		{
-			desc:        "given password with no alphabetic chars then should return error",
-			password:    "1234",
-			expectedErr: "password must contain alphabetic characters",
-		},
-		{
-			desc:        "given password with no lowercase letters then should return error",
-			password:    "ABCD",
-			expectedErr: "password must contain lowercase letters",
-		},
-		{
-			desc:        "given password with no uppercase letters then should return error",
-			password:    "abcd",
-			expectedErr: "password must contain uppercase letters",
-		},
-		{
-			desc:        "given password with no numbers then should return error",
-			password:    "abCD",
-			expectedErr: "password must contain numbers",
-		},
-		{
-			desc:        "given password with no special characters then should return error",
-			password:    "abCD12",
-			expectedErr: "password must contain special characters",
-		},
-		{
-			desc:        "given password with non permitted special characters then should return error",
-			password:    "abCD12!@'",
-			expectedErr: "password can't contain special characters `, ', \", / or \\",
-		},
+	if contains(userInfoValues, targetVal) {
+		return errors.New(errMsg)
 	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			_, err := auth.Register(auth.RegistrationInfo{
-				Email:    "nobody@outlook.com",
-				Password: tC.password,
-			})
 
-			assert.NotNil(t, err)
-			assert.Equal(t, tC.expectedErr, err.Error())
-		})
+	return nil
+}
+
+func contains(arr []string, val string) bool {
+	for _, str := range arr {
+		if str == val {
+			return true
+		}
 	}
+
+	return false
+}
+
+func TestRegister_InvalidUserInfo_ReturnsNillAndError(t *testing.T) {
+	r := auth.NewRegistrator(&mockRepository{})
+	registrationInfo := auth.RegistrationInfo{
+		Firstname: "Lacin",
+		Lastname:  "Bilgin",
+		Email:     "nobody@outlook.com",
+		Password:  "force-error",
+	}
+
+	u, err := r.Register(registrationInfo)
+
+	assert.Nil(t, u)
+	assert.NotNil(t, err)
+}
+
+func TestRegister_ValidUserInfo_ReturnsUserAndNill(t *testing.T) {
+	r := auth.NewRegistrator(&mockRepository{})
+	registrationInfo := auth.RegistrationInfo{
+		Firstname: "Yuksel",
+		Lastname:  "Bilgin",
+		Email:     "nobody@outlook.com",
+		Password:  "123@clA",
+	}
+	user := &auth.User{
+		ID:             "0",
+		Firstname:      registrationInfo.Firstname,
+		Lastname:       registrationInfo.Lastname,
+		Email:          registrationInfo.Email,
+		HashedPassword: registrationInfo.Password,
+	}
+
+	u, err := r.Register(registrationInfo)
+
+	assert.Equal(t, user, u)
+	assert.Nil(t, err)
 }
