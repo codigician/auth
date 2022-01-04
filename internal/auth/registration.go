@@ -3,8 +3,10 @@ package auth
 import (
 	"crypto/tls"
 	"fmt"
+	"os"
 
 	"github.com/docker/distribution/uuid"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	gomail "gopkg.in/mail.v2"
 )
@@ -26,6 +28,7 @@ type User struct {
 
 type Repository interface {
 	Save(u *User) error
+	Find(email string) (*User, error)
 }
 
 type Registrator struct {
@@ -56,21 +59,23 @@ func (r *Registrator) Register(ri RegistrationInfo) (*User, error) {
 		return nil, err
 	}
 
-	if err := r.Verify(); err != nil {
+	if err := r.SendVerificationEmail(); err != nil {
 		return nil, err
 	}
 
 	return &u, nil
 }
 
-func (r *Registrator) Verify() error {
+func (r *Registrator) SendVerificationEmail() error {
+	_ = godotenv.Load(".env")
+
 	m := gomail.NewMessage()
-	m.SetHeader("From", "gokcelb@hotmail.com")
+	m.SetHeader("From", "gokcelbilgin@gmail.com")
 	m.SetHeader("To", "gokcelbilgin@gmail.com")
 	m.SetHeader("Subject", "Gomail test")
 	m.SetBody("text/plain", "This is your verification email.")
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, "gokcelb@hotmail.com", "Lacmucum.96")
+	d := gomail.NewDialer("smtp.gmail.com", 587, "gokcelbilgin@gmail.com", os.Getenv("APP_PSW"))
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	err := d.DialAndSend(m)
