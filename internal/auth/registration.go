@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/docker/distribution/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	gomail "gopkg.in/mail.v2"
 )
@@ -18,17 +18,18 @@ type RegistrationInfo struct {
 }
 
 type User struct {
-	ID             uuid.UUID `bson: "_id"`
-	Firstname      string    `bson: "firstname"`
-	Lastname       string    `bson: "lastname"`
-	Email          string    `bson: "email"`
-	HashedPassword string    `bson: "hashed_password`
+	ID             primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Firstname      string             `bson:"firstname" json:"firstname,omitempty"`
+	Lastname       string             `bson:"lastname" json:"lastname,omitempty"`
+	Email          string             `bson:"email" json:"email,omitempty"`
+	HashedPassword string             `bson:"hashed_password json:"hashed_password,omitempty"`
 }
 
 type Repository interface {
 	Save(u *User) error
 	Find(uniqueVal string) (*User, error)
-	Update(id uuid.UUID, key string, val string) error
+	Update(id primitive.ObjectID, key string, val string) error
+	Delete(id primitive.ObjectID) error
 }
 
 type Registrator struct {
@@ -42,14 +43,13 @@ func NewRegistrator(repo Repository) *Registrator {
 }
 
 func (r *Registrator) Register(ri RegistrationInfo) (*User, error) {
-	id := uuid.Generate()
 	hashedPsw, err := HashPassword(ri.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	u := User{
-		ID:             id,
+		ID:             primitive.NewObjectID(),
 		Firstname:      ri.Firstname,
 		Lastname:       ri.Lastname,
 		Email:          ri.Email,

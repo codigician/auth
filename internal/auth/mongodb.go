@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/docker/distribution/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,32 +16,32 @@ type Mongo struct{}
 
 func (m Mongo) Save(u *User) error {
 	client, ctx, collection := m.connect()
-	insertResult, err := collection.InsertOne(ctx, u)
+	result, err := collection.InsertOne(ctx, u)
 	if err != nil {
 		return err
 	}
-	fmt.Println("inserted a single document:", insertResult.InsertedID)
+	fmt.Println("inserted a single document:", result)
 	err = m.disconnect(client, ctx)
 	return err
 }
 
 func (m Mongo) Find(email string) (*User, error) {
 	client, ctx, collection := m.connect()
-	var result *User
+	var user *User
 	filter := bson.M{"email": email}
 	fmt.Println(email)
-	err := collection.FindOne(ctx, filter).Decode(&result)
+	err := collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("Found a single document: %+v/n", result)
+	fmt.Printf("Found a single document: %+v/n", user)
 	err = m.disconnect(client, ctx)
-	return result, err
+	return user, err
 }
 
-func (m Mongo) Update(id uuid.UUID, key string, value string) error {
+func (m Mongo) Update(id primitive.ObjectID, key string, value string) error {
 	client, ctx, collection := m.connect()
-	filter := bson.M{"id": bson.M{"$eq": id}}
+	filter := bson.M{"_id": id}
 	updater := bson.M{"$set": bson.M{key: value}}
 	result, err := collection.UpdateOne(ctx, filter, updater)
 	if err != nil {
@@ -52,25 +52,49 @@ func (m Mongo) Update(id uuid.UUID, key string, value string) error {
 	return err
 }
 
-func (m Mongo) List() {
+func (m Mongo) Delete(id primitive.ObjectID) error {
+	client, ctx, collection := m.connect()
+	filter := bson.M{"_id": id}
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Delete result: %v, Delete count: %v\n", result, result.DeletedCount)
+	err = m.disconnect(client, ctx)
+	return err
+}
+
+func (m Mongo) DeleteAll() error {
+	client, ctx, collection := m.connect()
+	result, err := collection.DeleteMany(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Delete result: %v, Delete count: %v\n", result, result.DeletedCount)
+	err = m.disconnect(client, ctx)
+	return err
+}
+
+func (m Mongo) List() error {
 	client, ctx, collection := m.connect()
 	var results []*User
-	cursor, err := collection.Find(context.TODO(), bson.M{})
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var user User
 		if err = cursor.Decode(&user); err != nil {
 			log.Fatal(err)
 		}
 		results = append(results, &user)
 	}
-	cursor.Close(context.TODO())
+	cursor.Close(ctx)
 	for _, r := range results {
 		fmt.Println("One user:", r.ID, r.Firstname, r.Lastname, r.Email, r.HashedPassword)
 	}
-	m.disconnect(client, ctx)
+	err = m.disconnect(client, ctx)
+	return err
 }
 
 func (m Mongo) connect() (mongo.Client, context.Context, mongo.Collection) {
@@ -84,7 +108,6 @@ func (m Mongo) connect() (mongo.Client, context.Context, mongo.Collection) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	usersCollection := client.Database("auth").Collection("users")
 	return *client, ctx, *usersCollection
 }
