@@ -25,7 +25,7 @@ func (m Mongo) Save(u *User) error {
 	return err
 }
 
-func (m Mongo) Find(email string) (*User, error) {
+func (m Mongo) Get(email string) (*User, error) {
 	client, ctx, collection := m.connect()
 	var user *User
 	filter := bson.M{"email": email}
@@ -37,6 +37,28 @@ func (m Mongo) Find(email string) (*User, error) {
 	fmt.Printf("Found a single document: %+v/n", user)
 	err = m.disconnect(client, ctx)
 	return user, err
+}
+
+func (m Mongo) GetAll() ([]*User, error) {
+	client, ctx, collection := m.connect()
+	var results []*User
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for cursor.Next(ctx) {
+		var user User
+		if err = cursor.Decode(&user); err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, &user)
+	}
+	cursor.Close(ctx)
+	for _, r := range results {
+		fmt.Println("One user:", r.ID, r.Firstname, r.Lastname, r.Email, r.HashedPassword)
+	}
+	err = m.disconnect(client, ctx)
+	return results, err
 }
 
 func (m Mongo) Update(id primitive.ObjectID, key string, value string) error {
@@ -71,28 +93,6 @@ func (m Mongo) DeleteAll() error {
 		return err
 	}
 	fmt.Printf("Delete result: %v, Delete count: %v\n", result, result.DeletedCount)
-	err = m.disconnect(client, ctx)
-	return err
-}
-
-func (m Mongo) List() error {
-	client, ctx, collection := m.connect()
-	var results []*User
-	cursor, err := collection.Find(ctx, bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	for cursor.Next(ctx) {
-		var user User
-		if err = cursor.Decode(&user); err != nil {
-			log.Fatal(err)
-		}
-		results = append(results, &user)
-	}
-	cursor.Close(ctx)
-	for _, r := range results {
-		fmt.Println("One user:", r.ID, r.Firstname, r.Lastname, r.Email, r.HashedPassword)
-	}
 	err = m.disconnect(client, ctx)
 	return err
 }

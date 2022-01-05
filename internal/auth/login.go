@@ -27,7 +27,7 @@ func NewLogin(repo Repository) *Login {
 }
 
 func (l *Login) Authenticate(c *UserCredentials) error {
-	user, err := l.repository.Find(c.Email)
+	user, err := l.repository.Get(c.Email)
 	if err != nil {
 		return errors.New("email address doesn't exist")
 	}
@@ -35,7 +35,7 @@ func (l *Login) Authenticate(c *UserCredentials) error {
 }
 
 func (l *Login) ForgotPassword(email string, d Data) error {
-	_, err := l.repository.Find(email)
+	_, err := l.repository.Get(email)
 	if err != nil {
 		log.Fatal(err)
 	}

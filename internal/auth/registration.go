@@ -27,9 +27,11 @@ type User struct {
 
 type Repository interface {
 	Save(u *User) error
-	Find(uniqueVal string) (*User, error)
+	Get(uniqueVal string) (*User, error)
+	GetAll() error
 	Update(id primitive.ObjectID, key string, val string) error
 	Delete(id primitive.ObjectID) error
+	DeleteAll() error
 }
 
 type Registrator struct {
