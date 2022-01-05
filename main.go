@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/codigician/auth/internal/auth"
@@ -36,15 +35,27 @@ func main() {
 	}
 
 	mongo := auth.Mongo{}
-	login := auth.NewLogin(mongo)
-	fmt.Println("moving on")
+	// login := auth.NewLogin(mongo)
+	// fmt.Println("moving on")
 	// err := login.Authenticate(&uc)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
 	// fmt.Println(err)
-	if err := login.NewPassword(uc.Email); err != nil {
+	// d := auth.Data{Code: auth.GenerateCode(4)}
+	// if err := login.ForgotPassword(uc.Email, d); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// if err := d.CheckCode(d.Code); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	u, err := mongo.Find(uc.Email)
+	if err != nil {
 		log.Fatal(err)
 	}
-
+	if err := mongo.Update(u.ID, "lastname", "borok"); err != nil {
+		log.Fatal(err)
+	}
+	mongo.List()
 }

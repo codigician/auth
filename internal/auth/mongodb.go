@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/docker/distribution/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -57,4 +58,51 @@ func (m Mongo) Find(e string) (*User, error) {
 	fmt.Println("connection to mongodb closed")
 
 	return result, nil
+}
+
+func (m Mongo) Update(id uuid.UUID, key string, value string) error {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("connected to mongodb")
+	collection := client.Database("auth").Collection("users")
+
+	filter := bson.M{"id": bson.M{"$eq": id}}
+	updater := bson.M{"$set": bson.M{key: value}}
+	result, err := collection.UpdateOne(context.TODO(), filter, updater)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("RESULT:", result)
+	return nil
+}
+
+func (m Mongo) List() {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("connected to mongodb")
+	collection := client.Database("auth").Collection("users")
+
+	var results []*User
+	cursor, err := collection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for cursor.Next(context.TODO()) {
+		var user User
+		if err = cursor.Decode(&user); err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, &user)
+	}
+	cursor.Close(context.TODO())
+
+	for _, r := range results {
+		fmt.Println("One user:", r.ID, r.Firstname, r.Lastname, r.Email, r.HashedPassword)
+	}
 }

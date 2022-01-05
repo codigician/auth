@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/docker/distribution/uuid"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	gomail "gopkg.in/mail.v2"
 )
@@ -19,16 +18,17 @@ type RegistrationInfo struct {
 }
 
 type User struct {
-	ID             uuid.UUID
-	Firstname      string
-	Lastname       string
-	Email          string
-	HashedPassword string
+	ID             uuid.UUID `bson: "_id"`
+	Firstname      string    `bson: "firstname"`
+	Lastname       string    `bson: "lastname"`
+	Email          string    `bson: "email"`
+	HashedPassword string    `bson: "hashed_password`
 }
 
 type Repository interface {
 	Save(u *User) error
-	Find(email string) (*User, error)
+	Find(uniqueVal string) (*User, error)
+	Update(id uuid.UUID, key string, val string) error
 }
 
 type Registrator struct {
@@ -58,22 +58,18 @@ func (r *Registrator) Register(ri RegistrationInfo) (*User, error) {
 	if err := r.repository.Save(&u); err != nil {
 		return nil, err
 	}
-
-	if err := r.SendVerificationEmail(); err != nil {
+	if err := r.SendVerificationEmail(&u); err != nil {
 		return nil, err
 	}
-
 	return &u, nil
 }
 
-func (r *Registrator) SendVerificationEmail() error {
-	_ = godotenv.Load(".env")
-
+func (r *Registrator) SendVerificationEmail(u *User) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "gokcelbilgin@gmail.com")
 	m.SetHeader("To", "gokcelbilgin@gmail.com")
 	m.SetHeader("Subject", "Gomail test")
-	m.SetBody("text/plain", "This is your verification email.")
+	m.SetBody("text/plain", fmt.Sprintf("Hello, %s %s. This is your verification email.", u.Firstname, u.Lastname))
 
 	d := gomail.NewDialer("smtp.gmail.com", 587, "gokcelbilgin@gmail.com", os.Getenv("APP_PSW"))
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
