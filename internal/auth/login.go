@@ -34,17 +34,24 @@ func (l *Login) Authenticate(c *UserCredentials) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(c.Password))
 }
 
-func (l *Login) NewPassword(email string) error {
+func (l *Login) ForgotPassword(email string, d Data) error {
 	_, err := l.repository.Find(email)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	d := Data{GenerateCode(4)}
 	if err := d.SendPasswordResetEmail(); err != nil {
 		log.Fatal(err)
 	}
 	return err
+}
+
+func (data Data) CheckCode(inputtedCode string) error {
+	if inputtedCode != data.Code {
+		return errors.New("wrong code")
+	}
+	fmt.Println("code accepted")
+	return nil
 }
 
 type Data struct {
