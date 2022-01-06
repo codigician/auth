@@ -13,48 +13,40 @@ import (
 )
 
 func TestRegister_RegistrationInfo_ReturnsUser(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
+	r := newMockRepository(t)
+	m := newMockMailer(t)
 	s := auth.New(r, m)
 
-	ri := auth.RegistrationInfo{
-		Firstname: "lacin",
-		Lastname:  "bilgin",
-		Email:     "lacin@outlook.com",
-		Password:  "12345",
-	}
+	ri := mockRegistrationInfo()
 	ctx := context.Background()
-	body := fmt.Sprintf("Hello, %s %s. This is your verification email.", ri.Firstname, ri.Lastname)
+	body := fmt.Sprintf("Hello, %s %s. This is your verification email.",
+		ri.Firstname, ri.Lastname)
 
 	r.EXPECT().Save(ctx, gomock.Any()).Return(nil).Times(1)
 	m.EXPECT().Mail(ri.Email, "Verification", body).Times(1)
-	u, _ := s.Register(ctx, &ri)
+	u, _ := s.Register(ctx, ri)
 
 	assert.NotNil(t, u)
 }
 
 func TestRegister_SaveFails_ReturnsError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	r := newMockRepository(t)
+	s := auth.New(r, nil)
 
-	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
-	s := auth.New(r, m)
-
-	ri := auth.RegistrationInfo{
-		Firstname: "lacin",
-		Lastname:  "bilgin",
-		Email:     "lacin@outlook.com",
-		Password:  "12345",
-	}
+	ri := mockRegistrationInfo()
 	ctx := context.Background()
-
 	r.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("save failed")).Times(1)
-	u, err := s.Register(ctx, &ri)
+
+	u, err := s.Register(ctx, ri)
 
 	assert.Nil(t, u)
 	assert.Error(t, err, "save failed")
+}
+
+func newMockRepository(t *testing.T) *mocks.MockRepository {
+	return mocks.NewMockRepository(gomock.NewController(t))
+}
+
+func newMockMailer(t *testing.T) *mocks.MockMailer {
+	return mocks.NewMockMailer(gomock.NewController(t))
 }

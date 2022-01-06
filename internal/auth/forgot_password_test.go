@@ -7,26 +7,16 @@ import (
 	"testing"
 
 	"github.com/codigician/auth/internal/auth"
-	"github.com/codigician/auth/internal/mocks"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestForgotPassword_RightEmail_ReturnsNil(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
+	r := newMockRepository(t)
+	m := newMockMailer(t)
 	s := auth.New(r, m)
 
 	ctx := context.Background()
-	ri := auth.RegistrationInfo{
-		Firstname: "lacin",
-		Lastname:  "bilgin",
-		Email:     "lacin@outlook.com",
-		Password:  "1234",
-	}
+	ri := mockRegistrationInfo()
 	link := fmt.Sprintf("http://localhost:8888/password-reset/")
 	body := fmt.Sprintf("Click the link below to reset your password\nPassword reset link: %s", link)
 
@@ -44,11 +34,8 @@ func TestForgotPassword_RightEmail_ReturnsNil(t *testing.T) {
 }
 
 func TestForgotPassword_WrongEmail_ReturnsError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
+	r := newMockRepository(t)
+	m := newMockMailer(t)
 	s := auth.New(r, m)
 
 	ctx := context.Background()

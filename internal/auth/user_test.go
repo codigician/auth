@@ -8,13 +8,8 @@ import (
 )
 
 func TestNewUser_RegistrationInfo_ReturnsUser(t *testing.T) {
-	ri := auth.RegistrationInfo{
-		Firstname: "lacin",
-		Lastname:  "bilgin",
-		Email:     "lacin@outlook.com",
-		Password:  "12345",
-	}
-	u := auth.NewUser(&ri)
+	ri := mockRegistrationInfo()
+	u := auth.NewUser(ri)
 	assert.Equal(t, ri.Firstname, u.Firstname)
 	assert.Equal(t, ri.Lastname, u.Lastname)
 	assert.Equal(t, ri.Email, u.Email)
@@ -22,25 +17,24 @@ func TestNewUser_RegistrationInfo_ReturnsUser(t *testing.T) {
 }
 
 func TestComparePassword_RightRawPassword_ReturnsNil(t *testing.T) {
-	ri := auth.RegistrationInfo{
-		Firstname: "lacin",
-		Lastname:  "bilgin",
-		Email:     "lacin@outlook.com",
-		Password:  "12345",
-	}
-	u := auth.NewUser(&ri)
+	ri := mockRegistrationInfo()
+	u := auth.NewUser(ri)
 	err := u.ComparePassword(ri.Password)
 	assert.Nil(t, err)
 }
 
 func TestComparePassword_WrongRawPassword_ReturnsError(t *testing.T) {
-	ri := auth.RegistrationInfo{
+	ri := mockRegistrationInfo()
+	u := auth.NewUser(ri)
+	err := u.ComparePassword("somepassword")
+	assert.Error(t, err)
+}
+
+func mockRegistrationInfo() *auth.RegistrationInfo {
+	return &auth.RegistrationInfo{
 		Firstname: "lacin",
 		Lastname:  "bilgin",
 		Email:     "lacin@outlook.com",
 		Password:  "12345",
 	}
-	u := auth.NewUser(&ri)
-	err := u.ComparePassword("somepassword")
-	assert.Error(t, err)
 }
