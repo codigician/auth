@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/codigician/auth/internal/auth"
@@ -26,7 +27,23 @@ func NewAuth(service AuthService) *Auth {
 
 func (a *Auth) RegisterRoutes(e *echo.Echo) {
 	e.POST("/users", a.Register)
+	e.GET("/users", a.Authenticate)
 	e.GET("/users/forgot-password/:email", a.ForgotPassword)
+}
+
+func (a *Auth) Authenticate(c echo.Context) error {
+	var req AuthenticateRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	err := a.service.Authenticate(c.Request().Context(), req.To())
+	if err != nil {
+		fmt.Println(err)
+		return echo.ErrUnauthorized
+	}
+
+	return c.JSON(http.StatusOK, err)
 }
 
 func (a *Auth) Register(c echo.Context) error {
@@ -62,6 +79,11 @@ type (
 		Firstname string `json:"firstname"`
 		Lastname  string `json:"lastname"`
 	}
+
+	AuthenticateRequest struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
 )
 
 func (rr RegisterRequest) To() *auth.RegistrationInfo {
@@ -70,6 +92,13 @@ func (rr RegisterRequest) To() *auth.RegistrationInfo {
 		Lastname:  rr.Lastname,
 		Email:     rr.Email,
 		Password:  rr.Password,
+	}
+}
+
+func (ar AuthenticateRequest) To() *auth.UserCredentials {
+	return &auth.UserCredentials{
+		Email:    ar.Email,
+		Password: ar.Password,
 	}
 }
 
