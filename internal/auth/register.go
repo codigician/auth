@@ -14,11 +14,7 @@ type RegistrationInfo struct {
 }
 
 func (s *Service) Register(ctx context.Context, info *RegistrationInfo) (*User, error) {
-	user, err := NewUser(info)
-	if err != nil {
-		log.Printf("new user creation: %v\n", err)
-		return nil, err
-	}
+	user := NewUser(info)
 
 	if err := s.repository.Save(ctx, user); err != nil {
 		log.Printf("user repository save: %v\n", err)

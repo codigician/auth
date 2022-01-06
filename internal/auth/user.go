@@ -12,20 +12,20 @@ type User struct {
 	HashedPassword string
 }
 
-func NewUser(info *RegistrationInfo) (*User, error) {
+func NewUser(info *RegistrationInfo) *User {
 	user := &User{
 		Firstname: info.Firstname,
 		Lastname:  info.Lastname,
 		Email:     info.Email,
 	}
-	hashedPassword, err := HashPassword(info.Password)
+	hashedPassword := HashPassword(info.Password)
 	user.HashedPassword = hashedPassword
-	return user, err
+	return user
 }
 
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
+func HashPassword(password string) string {
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes)
 }
 
 func (u *User) ComparePassword(rawPassword string) error {
