@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/codigician/auth/internal/auth"
@@ -30,5 +31,16 @@ func main() {
 	authHandler := handler.NewAuth(authService)
 
 	authHandler.RegisterRoutes(e)
-	log.Fatal(e.Start(":8888"))
+	// log.Fatal(e.Start(":8888"))
+
+	myToken, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
+		Firstname: "laco",
+		Lastname:  "bilgo",
+		Email:     "lolo@outlook.com",
+		Password:  "12345",
+	}))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(myToken)
 }
