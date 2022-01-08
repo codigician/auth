@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreate_ValidKey_ReturnsTokenString(t *testing.T) {
-	j, _ := token.NewJWT()
+	j := token.NewJWT()
 	s := token.New(j)
 	tokenString, err := s.Creator.Create(&token.Claims{
 		ID:    "01234",

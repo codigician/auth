@@ -27,8 +27,8 @@ type (
 	}
 )
 
-func NewJWT() (*JWT, error) {
-	publicKey, privateKey, err := ed25519.GenerateKey(nil)
+func NewJWT() *JWT {
+	publicKey, privateKey, _ := ed25519.GenerateKey(nil)
 
 	return &JWT{
 		Issuer:                     issuer,
@@ -36,7 +36,7 @@ func NewJWT() (*JWT, error) {
 		PublicKey:                  publicKey,
 		AccessTokenExpireDuration:  time.Minute * 15,
 		RefreshTokenExpireDuration: time.Hour * 24 * 14,
-	}, err
+	}
 }
 
 func (j *JWT) Create(c *Claims) (string, error) {
