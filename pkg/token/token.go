@@ -1,5 +1,5 @@
 package token
 
-func Verify(publicKey string, jwtToken string) bool {
+func Verify(publicKey, jwtToken string) bool {
 	return false
 }

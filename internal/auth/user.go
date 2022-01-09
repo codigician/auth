@@ -12,6 +12,8 @@ type User struct {
 	HashedPassword string
 }
 
+const _cost = 14
+
 func NewUser(info *RegistrationInfo) *User {
 	user := &User{
 		Firstname: info.Firstname,
@@ -24,7 +26,7 @@ func NewUser(info *RegistrationInfo) *User {
 }
 
 func HashPassword(password string) string {
-	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), _cost)
 	return string(bytes)
 }
 

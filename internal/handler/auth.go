@@ -57,7 +57,7 @@ func (a *Auth) Register(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	return c.JSON(http.StatusCreated, FromUser(*u))
+	return c.JSON(http.StatusCreated, FromUser(u))
 }
 
 // TODO: ForgotPassword
@@ -102,7 +102,7 @@ func (ar AuthenticateRequest) To() *auth.UserCredentials {
 	}
 }
 
-func FromUser(u auth.User) *RegisterResponse {
+func FromUser(u *auth.User) *RegisterResponse {
 	return &RegisterResponse{
 		Email:     u.Email,
 		Firstname: u.Firstname,
