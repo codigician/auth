@@ -14,8 +14,7 @@ const (
 
 type (
 	Claims struct {
-		ID    string
-		Email string
+		ID string
 	}
 
 	JWT struct {
@@ -46,7 +45,6 @@ func (j *JWT) Create(c *Claims) (string, error) {
 		Id:        c.ID,
 		IssuedAt:  time.Now().Unix(),
 		Issuer:    j.Issuer,
-		Subject:   c.Email,
 	}
 	token := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, claims)
 	tokenString, err := token.SignedString(j.PrivateKey)
