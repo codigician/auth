@@ -30,7 +30,7 @@ func main() {
 	authHandler.RegisterRoutes(e)
 	log.Fatal(e.Start(":8888"))
 
-	myToken, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
+	at, rt, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
 		Firstname: "laco",
 		Lastname:  "bilgo",
 		Email:     "lolo@outlook.com",
@@ -39,5 +39,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(myToken)
+	fmt.Printf("access token: %s\nrefresh token: %s", at, rt)
 }

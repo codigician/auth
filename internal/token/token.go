@@ -38,7 +38,7 @@ func NewJWT() *JWT {
 	}
 }
 
-func (j *JWT) CreateTokenPair(c *Claims) (string, string, error) {
+func (j *JWT) CreateTokenPair(c *Claims) (atString, rtString string, err error) {
 	atClaims := jwt.StandardClaims{
 		Audience:  audience,
 		ExpiresAt: time.Now().Add(j.AccessTokenExpireDuration).Unix(),
@@ -48,6 +48,9 @@ func (j *JWT) CreateTokenPair(c *Claims) (string, string, error) {
 	}
 	accessToken := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, atClaims)
 	accessTokenString, err := accessToken.SignedString(j.PrivateKey)
+	if err != nil {
+		return "", "", err
+	}
 
 	rtClaims := jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(j.RefreshTokenExpireDuration).Unix(),
