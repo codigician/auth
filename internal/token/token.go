@@ -38,17 +38,25 @@ func NewJWT() *JWT {
 	}
 }
 
-func (j *JWT) Create(c *Claims) (string, error) {
-	claims := jwt.StandardClaims{
+func (j *JWT) CreateTokenPair(c *Claims) (string, string, error) {
+	atClaims := jwt.StandardClaims{
 		Audience:  audience,
 		ExpiresAt: time.Now().Add(j.AccessTokenExpireDuration).Unix(),
 		Id:        c.ID,
 		IssuedAt:  time.Now().Unix(),
 		Issuer:    j.Issuer,
 	}
-	token := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, claims)
-	tokenString, err := token.SignedString(j.PrivateKey)
-	return tokenString, err
+	accessToken := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, atClaims)
+	accessTokenString, err := accessToken.SignedString(j.PrivateKey)
+
+	rtClaims := jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(j.RefreshTokenExpireDuration).Unix(),
+		Id:        c.ID,
+	}
+	refreshToken := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, rtClaims)
+	refreshTokenString, err := refreshToken.SignedString(j.PrivateKey)
+
+	return accessTokenString, refreshTokenString, err
 }
 
 // func Validate(tokenString string) error {

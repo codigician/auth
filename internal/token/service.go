@@ -2,7 +2,7 @@ package token
 
 type (
 	Creator interface {
-		Create(c *Claims) (string, error)
+		CreateTokenPair(c *Claims) (string, string, error)
 	}
 
 	Service struct {

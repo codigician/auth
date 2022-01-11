@@ -9,7 +9,7 @@ import (
 
 func TestAuthorize_SuccessfulAuthorization_ReturnsTokenStringAndNil(t *testing.T) {
 	s := auth.New(nil, nil)
-	tokenString, err := s.Authorize(&auth.User{
+	atString, rtString, err := s.Authorize(&auth.User{
 		ID:             "someid",
 		Firstname:      "somename",
 		Lastname:       "somelastname",
@@ -17,6 +17,7 @@ func TestAuthorize_SuccessfulAuthorization_ReturnsTokenStringAndNil(t *testing.T
 		HashedPassword: "somehashedpassword",
 	})
 
-	assert.NotEmpty(t, tokenString)
+	assert.NotEmpty(t, atString)
+	assert.NotEmpty(t, rtString)
 	assert.Nil(t, err)
 }

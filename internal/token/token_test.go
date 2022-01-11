@@ -7,12 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreate_ValidKey_ReturnsTokenString(t *testing.T) {
+func TestCreate_ValidKey_ReturnsAccessAndRefreshTokenStrings(t *testing.T) {
 	j := token.NewJWT()
 	s := token.New(j)
-	tokenString, err := s.Creator.Create(&token.Claims{
+	atString, rtString, err := s.Creator.CreateTokenPair(&token.Claims{
 		ID: "01234",
 	})
-	assert.NotEmpty(t, tokenString)
+	assert.NotEmpty(t, atString)
+	assert.NotEmpty(t, rtString)
 	assert.Nil(t, err)
 }
