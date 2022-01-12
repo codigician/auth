@@ -8,7 +8,7 @@ import (
 	"github.com/codigician/auth/internal/token"
 )
 
-var c = token.NewTokenCreator()
+var c = token.NewCreator()
 var id = "01234"
 
 func TestAccessToken_SuccessfulCreation_ReturnsTokenString(t *testing.T) {

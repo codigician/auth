@@ -14,7 +14,7 @@ const (
 )
 
 type (
-	TokenCreator struct {
+	Creator struct {
 		Issuer                     string
 		PrivateKey                 ed25519.PrivateKey
 		PublicKey                  ed25519.PublicKey
@@ -30,10 +30,10 @@ type (
 	}
 )
 
-func NewTokenCreator() *TokenCreator {
+func NewCreator() *Creator {
 	publicKey, privateKey, _ := ed25519.GenerateKey(nil)
 
-	return &TokenCreator{
+	return &Creator{
 		Issuer:                     issuer,
 		PrivateKey:                 privateKey,
 		PublicKey:                  publicKey,
@@ -43,22 +43,22 @@ func NewTokenCreator() *TokenCreator {
 	}
 }
 
-func (tc *TokenCreator) GenerateAccessToken(id string) (string, error) {
+func (c *Creator) GenerateAccessToken(id string) (string, error) {
 	tokenClaims := jwt.StandardClaims{
 		Audience:  audience,
-		ExpiresAt: time.Now().Add(tc.AccessTokenExpireDuration).Unix(),
+		ExpiresAt: time.Now().Add(c.AccessTokenExpireDuration).Unix(),
 		Id:        id,
 		IssuedAt:  time.Now().Unix(),
-		Issuer:    tc.Issuer,
+		Issuer:    c.Issuer,
 	}
 	token := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, tokenClaims)
-	return token.SignedString(tc.PrivateKey)
+	return token.SignedString(c.PrivateKey)
 }
 
-func (tc *TokenCreator) GenerateRefreshToken(id string) *RefreshToken {
+func (c *Creator) GenerateRefreshToken(id string) *RefreshToken {
 	return &RefreshToken{
 		ID:             id,
-		TokenString:    tc.RefreshTokenString,
-		ExpirationDate: time.Now().Add(tc.RefreshTokenExpireDuration).Unix(),
+		TokenString:    c.RefreshTokenString,
+		ExpirationDate: time.Now().Add(c.RefreshTokenExpireDuration).Unix(),
 	}
 }

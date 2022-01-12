@@ -1,15 +1,15 @@
 package token
 
-type TokenPair struct {
-	AT string
-	RT string
+type Pair struct {
+	AccessToken  string
+	RefreshToken string
 }
 
-func (s *Service) CreateTokens(id string) (*TokenPair, error) {
-	accessTokenString, err := s.Creator.GenerateAccessToken(id)
-	refreshToken := s.Creator.GenerateRefreshToken(id)
-	return &TokenPair{
-		AT: accessTokenString,
-		RT: refreshToken.TokenString,
+func (s *Service) CreateTokens(id string) (*Pair, error) {
+	accessTokenString, err := s.issuer.GenerateAccessToken(id)
+	refreshToken := s.issuer.GenerateRefreshToken(id)
+	return &Pair{
+		AccessToken:  accessTokenString,
+		RefreshToken: refreshToken.TokenString,
 	}, err
 }

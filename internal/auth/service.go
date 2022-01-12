@@ -19,7 +19,7 @@ type (
 	}
 
 	TokenService interface {
-		CreateTokens(id string) (*token.TokenPair, error)
+		CreateTokens(id string) (*token.Pair, error)
 	}
 
 	Service struct {

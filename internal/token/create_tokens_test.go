@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreateTokens_SuccessfulCreation_ReturnsTokensAndNil(t *testing.T) {
-	s := token.New(token.NewTokenCreator())
+	s := token.New(token.NewCreator())
 	tokens, err := s.CreateTokens(id)
 
 	assert.NotEmpty(t, tokens)

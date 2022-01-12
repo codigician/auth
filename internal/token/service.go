@@ -1,16 +1,16 @@
 package token
 
 type (
-	Creator interface {
+	Issuer interface {
 		GenerateAccessToken(id string) (string, error)
 		GenerateRefreshToken(id string) *RefreshToken
 	}
 
 	Service struct {
-		Creator Creator
+		issuer Issuer
 	}
 )
 
-func New(creator Creator) *Service {
-	return &Service{Creator: creator}
+func New(issuer Issuer) *Service {
+	return &Service{issuer}
 }

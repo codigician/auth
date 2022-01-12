@@ -17,7 +17,7 @@ func TestAuthorize_SuccessfulTokenCreation_ReturnsTokensMapAndNil(t *testing.T) 
 		HashedPassword: "somehashedpassword",
 	}
 
-	ts := token.New(token.NewTokenCreator())
+	ts := token.New(token.NewCreator())
 	s := auth.New(nil, nil, ts)
 	tokens, err := s.Authorize(&u)
 

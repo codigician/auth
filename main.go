@@ -24,13 +24,13 @@ func main() {
 	}
 
 	e := echo.New()
-	tokenService := token.New(token.NewTokenCreator())
+	tokenService := token.New(token.NewCreator())
 	authRepository := authmongo.New(m.Collection("auth", "users"))
 	authService := auth.New(authRepository, nil, tokenService)
 	authHandler := handler.NewAuth(authService)
 
 	authHandler.RegisterRoutes(e)
-	// log.Fatal(e.Start(":8888"))
+	log.Fatal(e.Start(":8888"))
 
 	tokens, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
 		Firstname: "laco",
@@ -42,5 +42,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("access token:", tokens.AT, "\nrefresh token:", tokens.RT)
+	fmt.Println("access token:", tokens.AccessToken, "\nrefresh token:", tokens.RefreshToken)
 }
