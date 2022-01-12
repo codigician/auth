@@ -16,8 +16,7 @@ func TestAuthenticate_RightCredentials_ReturnsNil(t *testing.T) {
 	defer ctrl.Finish()
 
 	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
-	s := auth.New(r, m)
+	s := auth.New(r, nil, nil)
 
 	ui := auth.UserCredentials{
 		Email:    "lacin@outlook.com",
@@ -42,8 +41,7 @@ func TestAuthenticate_WrongCredentials_ReturnsError(t *testing.T) {
 	defer ctrl.Finish()
 
 	r := mocks.NewMockRepository(ctrl)
-	m := mocks.NewMockMailer(ctrl)
-	s := auth.New(r, m)
+	s := auth.New(r, nil, nil)
 
 	ui := auth.UserCredentials{
 		Email:    "lacin@outlook.com",

@@ -15,7 +15,7 @@ import (
 func TestRegister_RegistrationInfo_ReturnsUser(t *testing.T) {
 	r := newMockRepository(t)
 	m := newMockMailer(t)
-	s := auth.New(r, m)
+	s := auth.New(r, m, nil)
 
 	ri := mockRegistrationInfo()
 	ctx := context.Background()
@@ -31,7 +31,7 @@ func TestRegister_RegistrationInfo_ReturnsUser(t *testing.T) {
 
 func TestRegister_SaveFails_ReturnsError(t *testing.T) {
 	r := newMockRepository(t)
-	s := auth.New(r, nil)
+	s := auth.New(r, nil, nil)
 
 	ri := mockRegistrationInfo()
 	ctx := context.Background()

@@ -2,7 +2,8 @@ package token
 
 type (
 	Creator interface {
-		CreateTokenPair(c *Claims) (string, string, error)
+		GenerateAccessToken(id string) (string, error)
+		GenerateRefreshToken(id string) *RefreshToken
 	}
 
 	Service struct {

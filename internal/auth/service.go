@@ -1,6 +1,10 @@
 package auth
 
-import "context"
+import (
+	"context"
+
+	"github.com/codigician/auth/internal/token"
+)
 
 type (
 	Repository interface {
@@ -14,15 +18,21 @@ type (
 		Mail(to, subject, body string) error
 	}
 
+	TokenService interface {
+		CreateTokens(id string) (*token.TokenPair, error)
+	}
+
 	Service struct {
-		repository Repository
-		mailer     Mailer
+		repository   Repository
+		mailer       Mailer
+		tokenService TokenService
 	}
 )
 
-func New(repo Repository, mailer Mailer) *Service {
+func New(repo Repository, mailer Mailer, tokenService TokenService) *Service {
 	return &Service{
-		repository: repo,
-		mailer:     mailer,
+		repository:   repo,
+		mailer:       mailer,
+		tokenService: tokenService,
 	}
 }

@@ -13,7 +13,7 @@ import (
 func TestForgotPassword_RightEmail_ReturnsNil(t *testing.T) {
 	r := newMockRepository(t)
 	m := newMockMailer(t)
-	s := auth.New(r, m)
+	s := auth.New(r, m, nil)
 
 	ctx := context.Background()
 	ri := mockRegistrationInfo()
@@ -35,8 +35,7 @@ func TestForgotPassword_RightEmail_ReturnsNil(t *testing.T) {
 
 func TestForgotPassword_WrongEmail_ReturnsError(t *testing.T) {
 	r := newMockRepository(t)
-	m := newMockMailer(t)
-	s := auth.New(r, m)
+	s := auth.New(r, nil, nil)
 
 	ctx := context.Background()
 	wrongEmail := "lamcin@outlk.coom"

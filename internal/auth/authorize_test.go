@@ -4,20 +4,23 @@ import (
 	"testing"
 
 	"github.com/codigician/auth/internal/auth"
+	"github.com/codigician/auth/internal/token"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthorize_SuccessfulAuthorization_ReturnsTokenStringAndNil(t *testing.T) {
-	s := auth.New(nil, nil)
-	atString, rtString, err := s.Authorize(&auth.User{
+func TestAuthorize_SuccessfulTokenCreation_ReturnsTokensMapAndNil(t *testing.T) {
+	u := auth.User{
 		ID:             "someid",
 		Firstname:      "somename",
 		Lastname:       "somelastname",
 		Email:          "someemail@outlook.com",
 		HashedPassword: "somehashedpassword",
-	})
+	}
 
-	assert.NotEmpty(t, atString)
-	assert.NotEmpty(t, rtString)
+	ts := token.New(token.NewTokenCreator())
+	s := auth.New(nil, nil, ts)
+	tokens, err := s.Authorize(&u)
+
+	assert.NotEmpty(t, tokens)
 	assert.Nil(t, err)
 }

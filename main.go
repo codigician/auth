@@ -7,6 +7,7 @@ import (
 	"github.com/codigician/auth/internal/auth"
 	authmongo "github.com/codigician/auth/internal/auth/mongo"
 	"github.com/codigician/auth/internal/handler"
+	"github.com/codigician/auth/internal/token"
 	"github.com/codigician/auth/pkg/mongo"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -23,14 +24,15 @@ func main() {
 	}
 
 	e := echo.New()
+	tokenService := token.New(token.NewTokenCreator())
 	authRepository := authmongo.New(m.Collection("auth", "users"))
-	authService := auth.New(authRepository, nil)
+	authService := auth.New(authRepository, nil, tokenService)
 	authHandler := handler.NewAuth(authService)
 
 	authHandler.RegisterRoutes(e)
-	log.Fatal(e.Start(":8888"))
+	// log.Fatal(e.Start(":8888"))
 
-	at, rt, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
+	tokens, err := authService.Authorize(auth.NewUser(&auth.RegistrationInfo{
 		Firstname: "laco",
 		Lastname:  "bilgo",
 		Email:     "lolo@outlook.com",
@@ -39,5 +41,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("access token: %s\nrefresh token: %s", at, rt)
+
+	fmt.Println("access token:", tokens.AT, "\nrefresh token:", tokens.RT)
 }
