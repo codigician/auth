@@ -10,6 +10,7 @@ type (
 		GenerateAccessToken(id string) string
 		GenerateRefreshToken(id string) *RefreshToken
 		PrivateKey() ed25519.PrivateKey
+		PublicKey() ed25519.PublicKey
 	}
 
 	Repository interface {

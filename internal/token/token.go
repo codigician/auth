@@ -2,6 +2,7 @@ package token
 
 import (
 	"crypto/ed25519"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -53,6 +54,7 @@ func (c *Creator) GenerateAccessToken(id string) string {
 	}
 	token := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, tokenClaims)
 	tokenString, _ := token.SignedString(c.privateKey)
+	fmt.Println("private key of creator:", c.privateKey)
 	return tokenString
 }
 
@@ -66,4 +68,8 @@ func (c *Creator) GenerateRefreshToken(id string) *RefreshToken {
 
 func (c *Creator) PrivateKey() ed25519.PrivateKey {
 	return c.privateKey
+}
+
+func (c *Creator) PublicKey() ed25519.PublicKey {
+	return c.publicKey
 }

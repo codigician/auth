@@ -9,24 +9,23 @@ import (
 	"github.com/codigician/auth/internal/token"
 )
 
-var c = token.NewCreator()
-var id = "01234"
+var id = "61d6ec74eeaacbe4224a0f83"
 
 func TestGenerateAccessToken_SuccessfulCreation_ReturnsTokenString(t *testing.T) {
-	accessTokenString := c.GenerateAccessToken(id)
+	accessTokenString := creator.GenerateAccessToken(id)
 
 	assert.NotEmpty(t, accessTokenString)
 }
 
 func TestGenerateRefreshToken_SuccessfulCreation_ReturnsToken(t *testing.T) {
-	refreshToken := c.GenerateRefreshToken(id)
+	refreshToken := creator.GenerateRefreshToken(id)
 
 	assert.IsType(t, &token.RefreshToken{}, refreshToken)
 	assert.Equal(t, id, refreshToken.ID)
 }
 
 func TestPrivateKey(t *testing.T) {
-	privateKey := c.PrivateKey()
+	privateKey := creator.PrivateKey()
 
 	assert.NotEmpty(t, privateKey)
 	assert.IsType(t, ed25519.PrivateKey{}, privateKey)
