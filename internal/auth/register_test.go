@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/codigician/auth/internal/auth"
-	"github.com/codigician/auth/internal/mocks"
+	mocks "github.com/codigician/auth/internal/mocks/auth"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
