@@ -1,7 +1,11 @@
 package auth
 
-import "github.com/codigician/auth/internal/token"
+import (
+	"context"
 
-func (s *Service) Authorize(user *User) (*token.Pair, error) {
-	return s.tokenService.CreateTokens(user.ID)
+	"github.com/codigician/auth/internal/token"
+)
+
+func (s *Service) Authorize(ctx context.Context, user *User) (*token.Pair, error) {
+	return s.tokenService.CreateTokens(ctx, user.ID)
 }
