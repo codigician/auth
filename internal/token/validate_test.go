@@ -16,7 +16,6 @@ var refreshToken = token.RefreshToken{
 	Token:          "ae5b94b4-902c-4b2d-aaa6-3e0b2c6f74e2",
 	ExpirationDate: 1643293722,
 }
-var rt = creator.GenerateRefreshToken(id)
 
 func TestValidateAccessToken_Validated_ReturnsNil(t *testing.T) {
 	accessTokenString := creator.GenerateAccessToken(id)

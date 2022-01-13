@@ -15,7 +15,6 @@ var creator = token.NewCreator()
 var service = token.New(creator, mockRepository)
 
 func TestCreateTokens_SuccessfulCreation_ReturnsTokensAndNil(t *testing.T) {
-
 	mockRepository.EXPECT().Save(context.Background(), gomock.Any()).Return(nil).Times(1)
 
 	tokens, err := service.CreateTokens(context.Background(), id)

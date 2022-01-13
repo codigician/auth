@@ -26,7 +26,7 @@ func (s *Service) ValidateRefreshToken(ctx context.Context, id string) error {
 		return err
 	}
 	expirationDate := time.Unix(refreshToken.ExpirationDate, 0)
-	if expirationDate.Sub(time.Now()).Hours() <= 0 {
+	if time.Until(expirationDate).Hours() <= 0 {
 		return errors.New("refresh token expired")
 	}
 	return nil
