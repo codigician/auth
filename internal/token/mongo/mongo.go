@@ -19,6 +19,7 @@ func New(collection *mongo.Collection) *Mongo {
 }
 
 func (m *Mongo) Save(ctx context.Context, rt *token.RefreshToken) error {
+	fmt.Println("rt id:", rt.ID)
 	objectID, err := primitive.ObjectIDFromHex(rt.ID)
 	if err != nil {
 		return err
@@ -33,9 +34,14 @@ func (m *Mongo) Save(ctx context.Context, rt *token.RefreshToken) error {
 }
 
 func (m *Mongo) Get(ctx context.Context, id string) (*token.RefreshToken, error) {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 	var rt RefreshToken
-	filter := bson.M{"_id": id}
-	err := m.collection.FindOne(ctx, filter).Decode(&rt)
+	filter := bson.M{"_id": objectID}
+	err = m.collection.FindOne(ctx, filter).Decode(&rt)
+	fmt.Println("rt sturct:", rt)
 	return &token.RefreshToken{
 		ID:             rt.ID.Hex(),
 		Token:          rt.Token,
