@@ -11,7 +11,12 @@ import (
 )
 
 func TestCreateTokens_SuccessfulCreation_ReturnsTokensAndNil(t *testing.T) {
-	s := token.New(token.NewCreator(), newMockRepository(t))
+	mockRepository := newMockRepository(t)
+	creator := token.NewCreator()
+	s := token.New(creator, mockRepository)
+
+	mockRepository.EXPECT().Save(context.Background(), gomock.Any()).Return(nil).Times(1)
+
 	tokens, err := s.CreateTokens(context.Background(), id)
 
 	assert.NotEmpty(t, tokens)

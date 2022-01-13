@@ -7,7 +7,7 @@ import (
 
 type (
 	Issuer interface {
-		GenerateAccessToken(id string) (string, error)
+		GenerateAccessToken(id string) string
 		GenerateRefreshToken(id string) *RefreshToken
 		PrivateKey() ed25519.PrivateKey
 	}

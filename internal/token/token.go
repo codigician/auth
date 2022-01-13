@@ -43,7 +43,7 @@ func NewCreator() *Creator {
 	}
 }
 
-func (c *Creator) GenerateAccessToken(id string) (string, error) {
+func (c *Creator) GenerateAccessToken(id string) string {
 	tokenClaims := jwt.StandardClaims{
 		Audience:  audience,
 		ExpiresAt: time.Now().Add(c.accessTokenExpireDuration).Unix(),
@@ -52,7 +52,8 @@ func (c *Creator) GenerateAccessToken(id string) (string, error) {
 		Issuer:    c.issuer,
 	}
 	token := jwt.NewWithClaims(&jwt.SigningMethodEd25519{}, tokenClaims)
-	return token.SignedString(c.PrivateKey)
+	tokenString, _ := token.SignedString(c.privateKey)
+	return tokenString
 }
 
 func (c *Creator) GenerateRefreshToken(id string) *RefreshToken {

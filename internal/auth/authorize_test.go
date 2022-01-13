@@ -20,8 +20,14 @@ func TestAuthorize_SuccessfulTokenCreation_ReturnsTokensMapAndNil(t *testing.T) 
 		HashedPassword: "somehashedpassword",
 	}
 
-	ts := token.New(token.NewCreator(), newMockTokenRepository(t))
+	mockTokenRepository := newMockTokenRepository(t)
+	tokenCreator := token.NewCreator()
+
+	ts := token.New(tokenCreator, mockTokenRepository)
 	s := auth.New(nil, nil, ts)
+
+	mockTokenRepository.EXPECT().Save(context.Background(), gomock.Any()).Return(nil).Times(1)
+
 	tokens, err := s.Authorize(context.Background(), &u)
 
 	assert.NotEmpty(t, tokens)

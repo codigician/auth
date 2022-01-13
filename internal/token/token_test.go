@@ -1,6 +1,7 @@
 package token_test
 
 import (
+	"crypto/ed25519"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,16 +12,22 @@ import (
 var c = token.NewCreator()
 var id = "01234"
 
-func TestAccessToken_SuccessfulCreation_ReturnsTokenString(t *testing.T) {
-	accessTokenString, err := c.GenerateAccessToken(id)
+func TestGenerateAccessToken_SuccessfulCreation_ReturnsTokenString(t *testing.T) {
+	accessTokenString := c.GenerateAccessToken(id)
 
 	assert.NotEmpty(t, accessTokenString)
-	assert.Nil(t, err)
 }
 
-func TestRefreshToken_SuccessfulCreation_ReturnsToken(t *testing.T) {
+func TestGenerateRefreshToken_SuccessfulCreation_ReturnsToken(t *testing.T) {
 	refreshToken := c.GenerateRefreshToken(id)
 
 	assert.IsType(t, &token.RefreshToken{}, refreshToken)
 	assert.Equal(t, id, refreshToken.ID)
+}
+
+func TestPrivateKey(t *testing.T) {
+	privateKey := c.PrivateKey()
+
+	assert.NotEmpty(t, privateKey)
+	assert.IsType(t, ed25519.PrivateKey{}, privateKey)
 }
