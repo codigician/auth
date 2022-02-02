@@ -1,0 +1,2 @@
+privateKeyFilePath: ".ssh/id_rsa"
+publicKeyFilePath: ".ssh/id_rsa.pub"
