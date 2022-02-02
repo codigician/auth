@@ -11,7 +11,7 @@ import (
 )
 
 var mockRepository = newMockRepository(&testing.T{})
-var creator = token.NewCreator()
+var creator = token.NewCreator(token.Config{})
 var service = token.New(creator, mockRepository)
 
 func TestCreateTokens_SuccessfulCreation_ReturnsTokensAndNil(t *testing.T) {

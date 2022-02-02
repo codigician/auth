@@ -1,7 +1,6 @@
 package token_test
 
 import (
-	"crypto/ed25519"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,11 +21,4 @@ func TestGenerateRefreshToken_SuccessfulCreation_ReturnsToken(t *testing.T) {
 
 	assert.IsType(t, &token.RefreshToken{}, refreshToken)
 	assert.Equal(t, id, refreshToken.ID)
-}
-
-func TestPrivateKey(t *testing.T) {
-	privateKey := creator.PrivateKey()
-
-	assert.NotEmpty(t, privateKey)
-	assert.IsType(t, ed25519.PrivateKey{}, privateKey)
 }

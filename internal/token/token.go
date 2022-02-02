@@ -1,8 +1,11 @@
 package token
 
 import (
-	"crypto/ed25519"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -15,10 +18,15 @@ const (
 )
 
 type (
+	Config struct {
+		PrivateKeyFilePath string
+		PublicKeyFilePath  string
+	}
+
 	Creator struct {
 		issuer                     string
-		privateKey                 ed25519.PrivateKey
-		publicKey                  ed25519.PublicKey
+		privateKey                 *rsa.PrivateKey
+		publicKey                  *rsa.PublicKey
 		accessTokenExpireDuration  time.Duration
 		refreshToken               string
 		refreshTokenExpireDuration time.Duration
@@ -31,8 +39,17 @@ type (
 	}
 )
 
-func NewCreator() *Creator {
-	publicKey, privateKey, _ := ed25519.GenerateKey(nil)
+func NewCreator(c Config) *Creator {
+	rawPubKeyBytes, rawPriKeyBytes, err := readKeyFiles(c)
+	if err != nil {
+		panic(err)
+	}
+
+	pub, pri := decodeRawKeys(rawPubKeyBytes, rawPriKeyBytes)
+	publicKey, privateKey, err := parseKeys(pub, pri)
+	if err != nil {
+		panic(err)
+	}
 
 	return &Creator{
 		issuer:                     issuer,
@@ -42,6 +59,43 @@ func NewCreator() *Creator {
 		refreshToken:               uuid.NewString(),
 		refreshTokenExpireDuration: time.Hour * 24 * 14,
 	}
+}
+
+func parseKeys(pub, pri *pem.Block) (*rsa.PublicKey, *rsa.PrivateKey, error) {
+	if pub == nil || pri == nil {
+		return nil, nil, fmt.Errorf("public or private key is nil")
+	}
+
+	publicKey, err := x509.ParsePKCS1PublicKey(pub.Bytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	privateKey, err := x509.ParsePKCS1PrivateKey(pri.Bytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return publicKey, privateKey, nil
+}
+
+func decodeRawKeys(rawPubKey, rawPriKey []byte) (pub *pem.Block, pri *pem.Block) {
+	pub, _ = pem.Decode(rawPubKey)
+	pri, _ = pem.Decode(rawPriKey)
+
+	return pub, pri
+}
+
+func readKeyFiles(conf Config) (pubKey []byte, priKey []byte, err error) {
+	if pubKey, err = os.ReadFile(conf.PublicKeyFilePath); err != nil {
+		return nil, nil, err
+	}
+
+	if priKey, err = os.ReadFile(conf.PrivateKeyFilePath); err != nil {
+		return nil, nil, err
+	}
+
+	return pubKey, priKey, nil
 }
 
 func (c *Creator) GenerateAccessToken(id string) string {
@@ -64,12 +118,4 @@ func (c *Creator) GenerateRefreshToken(id string) *RefreshToken {
 		Token:          c.refreshToken,
 		ExpirationDate: time.Now().Add(c.refreshTokenExpireDuration).Unix(),
 	}
-}
-
-func (c *Creator) PrivateKey() ed25519.PrivateKey {
-	return c.privateKey
-}
-
-func (c *Creator) PublicKey() ed25519.PublicKey {
-	return c.publicKey
 }

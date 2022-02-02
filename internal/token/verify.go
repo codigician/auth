@@ -9,17 +9,17 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func (s *Service) ValidateAccessToken(accessToken string) error {
+func (s *Service) VerifyAccessToken(accessToken string) error {
 	_, err := jwt.Parse(accessToken, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodEd25519); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
-		return s.issuer.PublicKey(), nil
+		return nil, nil
 	})
 	return err
 }
 
-func (s *Service) ValidateRefreshToken(ctx context.Context, id string) error {
+func (s *Service) VerifyRefreshToken(ctx context.Context, id string) error {
 	refreshToken, err := s.repository.Get(ctx, id)
 	if err != nil {
 		fmt.Println("no refresh token with the given id found:", err)

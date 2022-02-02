@@ -17,33 +17,33 @@ var refreshToken = token.RefreshToken{
 	ExpirationDate: 1643293722,
 }
 
-func TestValidateAccessToken_Validated_ReturnsNil(t *testing.T) {
+func TestVerifyAccessToken_Validated_ReturnsNil(t *testing.T) {
 	accessTokenString := creator.GenerateAccessToken(id)
-	err := service.ValidateAccessToken(accessTokenString)
+	err := service.VerifyAccessToken(accessTokenString)
 
 	assert.Nil(t, err)
 }
 
-func TestValidateRefreshToken_Validated_ReturnsNil(t *testing.T) {
+func TestVerifyRefreshToken_Validated_ReturnsNil(t *testing.T) {
 	mockRepository.EXPECT().Get(ctx, id).Return(&refreshToken, nil).Times(1)
 
-	err := service.ValidateRefreshToken(ctx, id)
+	err := service.VerifyRefreshToken(ctx, id)
 
 	assert.Nil(t, err)
 }
 
-func TestValidateRefreshToken_GetFailed_ReturnsError(t *testing.T) {
+func TestVerifyRefreshToken_GetFailed_ReturnsError(t *testing.T) {
 	noDocumentsErr := errors.New("mongo: no documents in result")
 
 	mockRepository.EXPECT().Get(ctx, id).
 		Return(nil, noDocumentsErr).Times(1)
 
-	err := service.ValidateRefreshToken(ctx, id)
+	err := service.VerifyRefreshToken(ctx, id)
 
 	assert.EqualError(t, err, noDocumentsErr.Error())
 }
 
-func TestValidateRefreshToken_ExpiredToken_ReturnsError(t *testing.T) {
+func TestVerifyRefreshToken_ExpiredToken_ReturnsError(t *testing.T) {
 	tokenExpiredErr := errors.New("refresh token expired")
 	expiredToken := token.RefreshToken{
 		ID:             id,
@@ -54,7 +54,7 @@ func TestValidateRefreshToken_ExpiredToken_ReturnsError(t *testing.T) {
 	mockRepository.EXPECT().Get(ctx, id).
 		Return(&expiredToken, nil).Times(1)
 
-	err := service.ValidateRefreshToken(ctx, id)
+	err := service.VerifyRefreshToken(ctx, id)
 
 	assert.EqualError(t, err, tokenExpiredErr.Error())
 }

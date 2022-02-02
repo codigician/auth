@@ -26,7 +26,10 @@ func main() {
 	authRepository := authmongo.New(m.Collection("auth", "users"))
 
 	tokenRepository := tokenmongo.New(m.Collection("token", "tokens"))
-	tokenCreator := token.NewCreator()
+	tokenCreator := token.NewCreator(token.Config{})
+	if err != nil {
+		panic(err)
+	}
 
 	tokenService := token.New(tokenCreator, tokenRepository)
 	authService := auth.New(authRepository, nil, tokenService)

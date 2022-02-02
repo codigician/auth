@@ -21,7 +21,7 @@ func TestAuthorize_SuccessfulTokenCreation_ReturnsTokensMapAndNil(t *testing.T) 
 	}
 
 	mockTokenRepository := newMockTokenRepository(t)
-	tokenCreator := token.NewCreator()
+	tokenCreator := token.NewCreator(token.Config{})
 
 	ts := token.New(tokenCreator, mockTokenRepository)
 	s := auth.New(nil, nil, ts)
